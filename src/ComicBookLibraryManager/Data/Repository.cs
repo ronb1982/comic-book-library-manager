@@ -194,7 +194,11 @@ namespace ComicBookLibraryManager.Data
                     // Entity state will be set to "Unchanged".
                     // You MUST set the entity state to "Modified" to persist changes to the database.
                 context.ComicBooks.Attach(comicBook);
-                context.Entry(comicBook).State = EntityState.Modified;
+                var comicBookEntry = context.Entry(comicBook);
+                comicBookEntry.State = EntityState.Modified;
+
+                // prevents the IssueNumber field from being included in the UPDATE statement
+                //comicBookEntry.Property("IssueNumber").IsModified = false;
 
                 context.SaveChanges();
             }
