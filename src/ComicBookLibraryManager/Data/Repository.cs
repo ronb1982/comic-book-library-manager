@@ -170,7 +170,34 @@ namespace ComicBookLibraryManager.Data
         /// <param name="comicBook">The ComicBook entity instance to update.</param>
         public static void UpdateComicBook(ComicBook comicBook)
         {
-            // TODO
+            using (Context context = GetContext())
+            {
+                // Retrieve comic book from the current context OR the database
+                ComicBook comicBookToUpdate = context.ComicBooks.Find(comicBook.Id);
+
+                // OPTION 1: Set each passed-in comic book field value on the new comic book instance
+                /*comicBookToUpdate.SeriesId = comicBook.SeriesId;
+                comicBookToUpdate.IssueNumber = comicBook.IssueNumber;
+                comicBookToUpdate.Description = comicBook.Description;
+                comicBookToUpdate.PublishedOn = comicBook.PublishedOn;
+                comicBookToUpdate.AverageRating = comicBook.AverageRating;*/
+
+                // OPTION 2: Get entry (from context or DB) and set the passed-in
+                // comic book's values on that entry.
+                // Entity State will be set to "Modified".
+                //context.Entry(comicBookToUpdate).CurrentValues.SetValues(comicBook);
+
+                // OPTION 3: Attach passed-in argument to the current context.
+                    // This will reduce the number of queries as the first two methods
+                    // above require a SELECT and an UPDATE query to execute updates.
+                    // Entity Framework cannot detect if actual updates were made to the context.
+                    // Entity state will be set to "Unchanged".
+                    // You MUST set the entity state to "Modified" to persist changes to the database.
+                context.ComicBooks.Attach(comicBook);
+                context.Entry(comicBook).State = EntityState.Modified;
+
+                context.SaveChanges();
+            }
         }
 
         /// <summary>
