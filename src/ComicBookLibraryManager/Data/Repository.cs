@@ -133,7 +133,35 @@ namespace ComicBookLibraryManager.Data
         /// <param name="comicBook">The ComicBook entity instance to add.</param>
         public static void AddComicBook(ComicBook comicBook)
         {
-            // TODO
+            using (Context context = GetContext())
+            {
+                context.ComicBooks.Add(comicBook);
+
+                // Prevent Series from being re-saved to the database (changes Entry's
+                // state from "Added" to "Unchanged")
+                if (comicBook.Series != null && comicBook.Series.Id > 0)
+                {
+                    context.Entry(comicBook.Series).State = EntityState.Unchanged;
+                }
+
+                // Prevent Artists collection (and its related object, Role)
+                // from being re-saved to the database (changes Entry's state
+                // from "Added" to "Unchanged")
+                foreach (var artist in comicBook.Artists)
+                {
+                    if (artist.Artist != null && artist.Artist.Id > 0)
+                    {
+                        context.Entry(artist.Artist).State = EntityState.Unchanged;
+                    }
+
+                    if (artist.Role != null && artist.Role.Id > 0)
+                    {
+                        context.Entry(artist.Role).State = EntityState.Unchanged;
+                    }
+                }
+
+                context.SaveChanges();
+            }
         }
 
         /// <summary>
