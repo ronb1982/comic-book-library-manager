@@ -210,7 +210,22 @@ namespace ComicBookLibraryManager.Data
         /// <param name="comicBookId">The comic book ID to delete.</param>
         public static void DeleteComicBook(int comicBookId)
         {
-            // TODO
+            using (Context context = GetContext())
+            {
+                // OPTION 1: Retrieve entry (from context or DB) and remove it from DbSet.
+                //ComicBook comicBook = context.ComicBooks.Find(comicBookId);
+                //context.ComicBooks.Remove(comicBook);
+
+                // OPTION 2: Use stub entity since we only need the ID to remove a record.
+                var comicBook = new ComicBook()
+                {
+                    Id = comicBookId
+                };
+
+                context.Entry(comicBook).State = EntityState.Deleted;
+
+                context.SaveChanges();
+            }
         }
     }
 }
